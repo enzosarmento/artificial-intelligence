@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plano de Classificação - Perceptron</title>
+    <style>
+        /* --- ESTILOS GERAIS --- */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f4f7fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+        }
+
+        /* --- CONTÊINER PRINCIPAL (PLANO CARTESIANO) --- */
+        .plot-container {
+            position: relative;
+            width: 600px;
+            height: 500px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        /* --- EIXOS X E Y --- */
+        .axis {
+            position: absolute;
+            background-color: #333;
+            z-index: 5;
+        }
+        .x-axis {
+            width: 90%;
+            height: 2px;
+            top: 50%;
+            left: 5%;
+        }
+        .y-axis {
+            width: 2px;
+            height: 90%;
+            left: 50%;
+            top: 5%;
+        }
+
+        /* Setas dos eixos */
+        .axis::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 0;
+        }
+        .x-axis::after {
+            border-top: 6px solid transparent;
+            border-bottom: 6px solid transparent;
+            border-left: 12px solid #333;
+            right: -10px;
+            top: -5px;
+        }
+        .y-axis::after {
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-bottom: 12px solid #333;
+            top: -10px;
+            left: -5px;
+        }
+
+        /* Rótulos dos eixos */
+        .axis-label {
+            position: absolute;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #333;
+            z-index: 10;
+        }
+        .x-label {
+            bottom: 44%;
+            right: 2%;
+        }
+        .y-label {
+            top: 1%;
+            left: 51%;
+        }
+
+        /* --- PONTOS DE DADOS --- */
+        .data-point {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+            z-index: 15;
+        }
+
+        /* Estilos da Classe A (Azul) */
+        .class-a {
+            background-color: #e6f7ff;
+            border: 2px solid #007acc;
+            color: #007acc;
+        }
+
+        /* Estilos da Classe B (Laranja) */
+        .class-b {
+            background-color: #fff0e6;
+            border: 2px solid #ff6b1a;
+            color: #ff6b1a;
+        }
+
+        /* --- LINHA DE DECISÃO --- */
+        .decision-boundary {
+            position: absolute;
+            width: 100%;
+            height: 4px;
+            background-color: #555;
+            top: 50%;
+            left: 5%;
+            transform: rotate(40deg);
+            z-index: 10;
+        }
+
+        .decision-boundary-1 {
+            border-top: 3px dashed rgba(85, 85, 85, 0.55);
+            position: absolute;
+            width: 90%;
+            top: 50%;
+            left: 15%;
+            transform: rotate(60deg);
+            z-index: 10;
+        }
+
+        .decision-boundary-2 {
+            border-top: 3px dashed rgba(85, 85, 85, 0.55);
+            position: absolute;
+            width: 85%;
+            top: 50%;
+            left: 30%;
+            transform: rotate(65deg);
+            z-index: 10;
+        }
+
+        .decision-boundary-3 {
+            border-top: 3px dashed rgba(85, 85, 85, 0.55);
+            position: absolute;
+            width: 85%;
+            top: 50%;
+            left: 40%;
+            transform: rotate(70deg);
+            z-index: 10;
+        }
+
+        .line-label {
+            position: absolute;
+            font-size: 0.9rem;
+            color: #777;
+            z-index: 11;
+        }
+
+        .label-decision { top: 10%; left: 20%; }
+        .label-margin-top { top: 5%; left: 40%; }
+        .label-margin-middle { top: 5%; left: 57%; }
+        .label-margin-bottom { top: 5%; left: 70%; }
+
+        /* --- EQUAÇÃO --- */
+        .equation {
+            position: absolute;
+            bottom: 5%;
+            right: 5%;
+            font-size: 1rem;
+            color: #555;
+            z-index: 20;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="plot-container">
+        <div class="axis x-axis"></div>
+        <div class="axis y-axis"></div>
+        <div class="axis-label x-label">x<sub>1</sub></div>
+        <div class="axis-label y-label">x<sub>2</sub></div>
+
+        <div class="decision-boundary"></div>
+        <div class="decision-boundary-1"></div>
+        <div class="decision-boundary-2"></div>
+        <div class="decision-boundary-3"></div>
+
+        <div class="data-point class-a" style="top: 35%; left: 15%;">A</div>
+        <div class="data-point class-a" style="top: 42%; left: 30%;">A</div>
+        <div class="data-point class-a" style="top: 52%; left: 25%;">A</div>
+        <div class="data-point class-a" style="top: 55%; left: 45%;">A</div>
+        <div class="data-point class-a" style="top: 75%; left: 30%;">A</div>
+        <div class="data-point class-a" style="top: 80%; left: 42%;">A</div>
+        <div class="data-point class-a" style="top: 65%; left: 38%;">A</div>
+
+        <div class="data-point class-b" style="top: 15%; left: 55%;">B</div>
+        <div class="data-point class-b" style="top: 25%; left: 45%;">B</div>
+        <div class="data-point class-b" style="top: 28%; left: 65%;">B</div>
+        <div class="data-point class-b" style="top: 40%; left: 58%;">B</div>
+        <div class="data-point class-b" style="top: 38%; left: 78%;">B</div>
+        <div class="data-point class-b" style="top: 52%; left: 70%;">B</div>
+        <div class="data-point class-b" style="top: 60%; left: 82%;">B</div>
+
+        <div class="line-label label-decision">(...)</div>
+        <div class="line-label label-margin-top">(3)</div>
+        <div class="line-label label-margin-middle">(2)</div>
+        <div class="line-label label-margin-bottom">(1)</div>
+
+    </div>
+
+</body>
+</html>
