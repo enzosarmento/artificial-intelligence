@@ -1,5 +1,6 @@
 import numpy as np
 
+
 class Perceptron:
     def __init__(self, weights, activation_func):
         self.weights = weights  # O vetor de pesos terá como primeiro peso a bias.
